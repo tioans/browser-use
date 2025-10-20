@@ -663,6 +663,13 @@ class Agent(Generic[Context, AgentStructuredOutput]):
 		# The task continues with new instructions, it doesn't end and start a new one
 		self.task = new_task
 		self._message_manager.add_new_task(new_task)
+		# FIX: task chaining
+		# Mark as follow-up task and recreate eventbus (gets shut down after each run)
+		self.state.follow_up_task = True
+		self.eventbus = EventBus(name=f'Agent_{str(self.id)[-self.state.n_steps :]}')
+		# Re-register cloud sync handler if it exists (if not disabled)
+		if hasattr(self, 'cloud_sync') and self.cloud_sync and self.enable_cloud_sync:
+			self.eventbus.on('*', self.cloud_sync.handle_event)
 
 	@observe_debug(ignore_input=True, ignore_output=True, name='_raise_if_stopped_or_paused')
 	async def _raise_if_stopped_or_paused(self) -> None:
@@ -1393,7 +1400,7 @@ class Agent(Generic[Context, AgentStructuredOutput]):
 
 			# Stop the event bus gracefully, waiting for all events to be processed
 			# Use longer timeout to avoid deadlocks in tests with multiple agents
-			await self.eventbus.stop(timeout=10.0)
+			await self.eventbus.stop(timeout=3.0)  # FIX: task-chaining
 
 			await self.close()
 

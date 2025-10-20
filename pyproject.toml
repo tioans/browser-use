@@ -2,7 +2,7 @@
 name = "browser-use"
 description = "Make websites accessible for AI agents"
 authors = [{ name = "Gregor Zunic" }]
-version = "0.5.11"
+version = "0.5.11.post1+backport.fix.task.chaining"
 readme = "README.md"
 requires-python = ">=3.11,<4.0"
 classifiers = [

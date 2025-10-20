@@ -78,6 +78,9 @@ class AgentState(BaseModel):
 	last_model_output: AgentOutput | None = None
 	paused: bool = False
 	stopped: bool = False
+	# FIX: task-chaining
+	session_initialized: bool = False  # Track if session events have been dispatched
+	follow_up_task: bool = False  # Track if the agent is a follow-up task
 
 	message_manager_state: MessageManagerState = Field(default_factory=MessageManagerState)
 	file_system_state: FileSystemState | None = None
